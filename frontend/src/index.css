@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  .dark {
+    /* ==========================================================================
+       A E R I S — Precision Engineered Design Tokens
+       Source: Neuform Staff Featured Spec (May 2026)
+       ========================================================================== */
+    --background: 0 0% 3.1%;          /* #080808 — Pitch Deep Black */
+    --foreground: 0 0% 100%;          /* #FFFFFF — Precision White */
+    --card: 0 0% 5.9%;                /* #0F0F0F — Modular Surface */
+    --card-foreground: 0 0% 100%;     /* #FFFFFF */
+    --popover: 0 0% 5.9%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;             /* #FFFFFF */
+    --primary-foreground: 0 0% 3.1%;  /* #080808 */
+    --secondary: 0 0% 12%;            /* #1F1F1F */
+    --secondary-foreground: 0 0% 96%; /* #F5F5F5 */
+    --muted: 0 0% 10%;
+    --muted-foreground: 240 5% 65%;   /* #A1A1AA — Technical Secondary Text */
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 350 89% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 16%;               /* #292929 — Subtle Atomic Border */
+    --input: 0 0% 16%;
+    --ring: 0 0% 100%;
+    --radius: 8px;                    /* 8px Precision Radius Token */
+
+    --sidebar-background: 0 0% 4%;    /* #0A0A0A */
+    --sidebar-foreground: 0 0% 96%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 3.1%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 0 0% 100%;
+  }
+}
+
+body {
+  @apply bg-background text-foreground antialiased selection:bg-white/20 selection:text-white font-sans;
+  background-color: #080808;
+  color: #FFFFFF;
+  min-height: 100vh;
+  letter-spacing: -0.01em;
+}
+
+/* A E R I S Technical Dither & Precision Grid Backgrounds */
+.bg-aeris-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.aeris-panel {
+  background-color: rgba(14, 14, 14, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #242424;
+  border-radius: 8px;
+}
+
+/* Precision Engineered Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #080808;
+}
+::-webkit-scrollbar-thumb {
+  background: #2E2E2E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4A4A4A;
+}

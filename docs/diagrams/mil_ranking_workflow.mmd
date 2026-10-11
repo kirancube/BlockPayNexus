@@ -1,0 +1,53 @@
+graph LR
+    %% Deep Multiple Instance Learning Ranking Workflow
+    subgraph POS_BAG["POSITIVE BAG (Anomaly Video: B_a)"]
+        direction TB
+        V1_a["Segment V_1^a (Normal)"]
+        V2_a["Segment V_2^a (Normal)"]
+        V_anom["Segment V_k^a (CRITICAL ANOMALY)"]
+        Vm_a["Segment V_m^a (Normal)"]
+    end
+
+    subgraph NEG_BAG["NEGATIVE BAG (Normal Video: B_n)"]
+        direction TB
+        V1_n["Segment V_1^n (Normal)"]
+        V2_n["Segment V_2^n (Normal)"]
+        Vj_n["Segment V_j^n (Normal)"]
+        Vm_n["Segment V_m^n (Normal)"]
+    end
+
+    subgraph MIL_CORE["DEEP MIL RANKING ENGINE"]
+        direction TB
+        EVAL_A["Score All Instances: f(V_i^a)"]
+        EVAL_N["Score All Instances: f(V_j^n)"]
+        MAX_A["Max Operator: MAX(f(V_i^a))"]
+        MAX_N["Max Operator: MAX(f(V_j^n))"]
+    end
+
+    subgraph OPTIMIZATION["OPTIMIZATION & CONSTRAINTS"]
+        direction TB
+        OBJECTIVE["Ranking Margin: Max Pos Score greater than Max Neg Score"]
+        LOSS_HINGE["Hinge Loss: max(0, 1 - max_pos + max_neg)"]
+        LOSS_SMOOTH["Smoothness Loss: lambda_1 * sum diff squared - Law 2: Time is Continuous"]
+        LOSS_SPARSE["Sparsity Loss: lambda_2 * sum scores - Law 1: Anomalies are Brief"]
+        ADAGRAD["Adagrad Optimizer - Learning Rate 0.001"]
+    end
+
+    V1_a --> EVAL_A
+    V_anom --> EVAL_A
+    V1_n --> EVAL_N
+    Vj_n --> EVAL_N
+
+    EVAL_A --> MAX_A
+    EVAL_N --> MAX_N
+
+    MAX_A --> OBJECTIVE
+    MAX_N --> OBJECTIVE
+
+    OBJECTIVE --> LOSS_HINGE
+    EVAL_A --> LOSS_SMOOTH
+    EVAL_A --> LOSS_SPARSE
+
+    LOSS_HINGE --> ADAGRAD
+    LOSS_SMOOTH --> ADAGRAD
+    LOSS_SPARSE --> ADAGRAD

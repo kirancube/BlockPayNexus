@@ -1,0 +1,132 @@
+version: '3.8'
+
+# ==============================================================================
+# BLOCKPAY NEXUS — ENTERPRISE MICROSERVICES DOCKER COMPOSE CONFIGURATION
+# Coordinates API Gateway, PostgreSQL 18, Redis Cache, RabbitMQ, EVM Blockchain Node,
+# and Preserved SentinelAI X Telemetry Engine.
+# ==============================================================================
+
+services:
+  # 1. BlockPay Nexus Unified API Gateway & Production SPA
+  bpx-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bpx-gateway
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - PORT=8080
+      - ENVIRONMENT=production
+      - DB_HOST=bpx-postgres
+      - DB_PORT=5432
+      - DB_NAME=blockpay_nexus
+      - DB_USER=postgres
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-blockpay}
+      - REDIS_URL=redis://bpx-redis:6379/0
+      - RABBITMQ_URL=amqp://guest:guest@bpx-rabbitmq:5672/
+      - EVM_RPC_URL=http://bpx-hardhat:8545
+      - JWT_SECRET=${JWT_SECRET:-bpx_super_secure_jwt_secret_key_2026_fintech_token_99x}
+    depends_on:
+      bpx-postgres:
+        condition: service_healthy
+      bpx-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bpx-network
+
+  # 2. Sovereign Database: PostgreSQL 18.6
+  bpx-postgres:
+    image: postgres:18-alpine
+    container_name: bpx-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=blockpay_nexus
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-blockpay}
+    volumes:
+      - bpx-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bpx-network
+
+  # 3. High-Speed Cache & Session Store: Redis
+  bpx-redis:
+    image: redis:7.2-alpine
+    container_name: bpx-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bpx-network
+
+  # 4. Asynchronous Event Broker: RabbitMQ
+  bpx-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: bpx-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+    networks:
+      - bpx-network
+
+  # 5. Academic Blockchain Local EVM Node (Hardhat/Ganache)
+  bpx-hardhat:
+    image: trufflesuite/ganache-cli:latest
+    container_name: bpx-hardhat
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+    command: ["-d", "-p", "8545", "-i", "31337", "--gasLimit", "8000000"]
+    networks:
+      - bpx-network
+
+  # 6. Preserved SentinelAI X Tactical Command Engine (Legacy)
+  sentinel-command:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentinel-central-command
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - SYSTEM_MODE=central_cloud_command
+      - ANOMALY_THRESHOLD=0.50
+    command: ["python", "-m", "sentinel.api.server"]
+    networks:
+      - bpx-network
+
+networks:
+  bpx-network:
+    driver: bridge
+
+volumes:
+  bpx-pgdata:
+    driver: local

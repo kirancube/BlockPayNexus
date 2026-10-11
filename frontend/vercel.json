@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://sentinelaix-api.onrender.com/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://sentinelaix-api.onrender.com/health"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

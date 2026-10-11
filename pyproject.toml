@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sentinel-aix"
+version = "1.2.0"
+authors = [
+    { name = "Kiran Cube", email = "kiranwreddy@gmail.com" },
+    { name = "SentinelAI Defense Intelligence Labs" }
+]
+description = "SentinelAI X: Autonomous Public Safety Intelligence Platform — From Passive CCTV to Active Spatiotemporal Anomaly Intelligence"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["deep-learning", "video-anomaly-detection", "c3d", "multiple-instance-learning", "public-safety", "cctv-ai", "computer-vision"]
+license = { text = "Apache-2.0" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Information Technology",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/kirancube/SentinelAIX"
+"Bug Tracker" = "https://github.com/kirancube/SentinelAIX/issues"
+"Documentation" = "https://github.com/kirancube/SentinelAIX#readme"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

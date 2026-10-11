@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    participant CCTV as CCTV Camera Node
+    participant Edge as Edge Preprocessor
+    participant C3D as C3D Spatiotemporal Extractor
+    participant MIL as Deep MIL Ranking Engine
+    participant Severity as Risk Severity Engine
+    participant AlertMgr as Alert Manager
+    participant Operator as Human Operator (Co-Pilot)
+    participant Archive as Intelligence Database
+
+    Note over CCTV,Edge: 30-60 FPS Uncompressed Video Stream
+    CCTV->>Edge: Continuous Frame Buffer
+    Edge->>Edge: Batch into 16-frame Contiguous Clips
+    Edge->>C3D: Feed (3, 16, 112, 112) Spatiotemporal Tensor
+    Note over C3D: 3x3x3 Convolutions across Motion & Time
+    C3D->>MIL: Output 4096-D Feature Vector V_i
+    Note over MIL: Linear(4096->512) -> ReLU -> Linear(512->32) -> Sigmoid
+    MIL-->>Severity: Instantaneous Anomaly Score between 0 and 1 - Sub 3.8ms
+    Severity->>AlertMgr: Evaluated Anomaly Score and Context
+    
+    alt Score Below Threat Threshold
+        AlertMgr->>AlertMgr: Maintain Temporal Moving Average Buffer
+    else Score Breaches Threat Threshold
+        AlertMgr->>AlertMgr: Check Debounce Hysteresis Window of 48 frames
+        AlertMgr->>Operator: Dispatch Structured Threat Alert to Priority HUD
+        AlertMgr->>Archive: Log Telemetry and Feature Vectors
+        
+        Note over Operator: AI Transparency Protocol - Human Verification
+        alt Threat Confirmed
+            Operator->>AlertMgr: Feedback - CONFIRMED_THREAT
+        else Environmental Occlusion
+            Operator->>AlertMgr: Feedback - FALSE_POSITIVE_ENVIRONMENTAL
+        else Behavioral False Positive
+            Operator->>AlertMgr: Feedback - FALSE_POSITIVE_BEHAVIORAL
+        end
+        AlertMgr->>MIL: Recalibration Gradient Feedback Loop
+    end

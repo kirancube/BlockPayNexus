@@ -1,0 +1,36 @@
+graph TD
+    %% Hub-and-Spoke Deployment Architecture
+    subgraph EDGE_LAYER["DISTRIBUTED EDGE NODES (PER-CAMERA INGESTION)"]
+        EDGE1["CAM_01 Node<br/>North Gate (4K)<br/>16-Frame Sampler"]
+        EDGE2["CAM_02 Node<br/>Sector West (PTZ)<br/>16-Frame Sampler"]
+        EDGE3["CAM_03 Node<br/>Transit South (ANPR)<br/>16-Frame Sampler"]
+        EDGE4["CAM_04 Node<br/>Concourse East (FOV 120°)<br/>16-Frame Sampler"]
+    end
+
+    subgraph CENTRAL_CLOUD["CENTRAL CLOUD COMMAND PLATFORM"]
+        direction TB
+        INGEST["Ingress Gateway & WebSocket Streamer"]
+        C3D_SRV["Spatiotemporal C3D Acceleration Cluster"]
+        MIL_SRV["Deep MIL Ranking Inference Server - Sub 3.8ms"]
+        ALERT_HUB["Structured Threat Packaging Hub"]
+        STORE["Spatiotemporal Vector Store and Video Archive"]
+    end
+
+    subgraph CONTROL_ROOM["TACTICAL OPERATIONS CENTER HUD"]
+        OPERATOR_A["Senior Dispatch Operator"]
+        OPERATOR_B["Threat Intelligence Analyst"]
+        MOBILE_UNITS["Quick Reaction Patrol Units"]
+    end
+
+    EDGE1 -->|Encrypted Real-Time Telemetry| INGEST
+    EDGE2 -->|Encrypted Real-Time Telemetry| INGEST
+    EDGE3 -->|Encrypted Real-Time Telemetry| INGEST
+    EDGE4 -->|Encrypted Real-Time Telemetry| INGEST
+
+    INGEST --> C3D_SRV
+    C3D_SRV --> MIL_SRV
+    MIL_SRV --> ALERT_HUB
+    MIL_SRV --> STORE
+    ALERT_HUB -->|Live Threat Alerts via WebSocket| CONTROL_ROOM
+    CONTROL_ROOM -->|Human-in-the-Loop Feedback| MIL_SRV
+    ALERT_HUB -.->|Automated Tactical Briefing| MOBILE_UNITS

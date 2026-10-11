@@ -1,0 +1,73 @@
+system:
+  name: "SentinelAI X"
+  dossier_id: "2024-SAX-003C"
+  version: "1.2.0"
+  classification: "UNCLASSIFIED//INTEL"
+  device_mode: "hybrid" # edge | cloud | hybrid
+
+model:
+  visual_encoder: "c3d" # c3d | i3d | resnet50
+  temporal_model: "transformer" # c3d_mil | tcn | bilstm | transformer
+  
+  feature_extractor:
+    name: "C3D"
+    input_channels: 3
+    clip_length: 16
+    spatial_size: [112, 112]
+    feature_dimension: 4096
+    temporal_kernel_size: 3
+    pretrained_weights: "c3d_ucf101_sports1m.pth"
+  
+  ranking_engine:
+    name: "Deep MIL Ranking Model"
+    input_dim: 4096
+    hidden_dim_1: 512
+    dropout_rate: 0.60
+    hidden_dim_2: 32
+    output_dim: 1
+    activation: "sigmoid"
+
+optimization:
+  optimizer: "adagrad"
+  learning_rate: 0.001
+  weight_decay: 0.00005
+  batch_size: 30 # 30 positive bags + 30 negative bags
+  epochs: 50
+  constraints:
+    lambda_1_smoothness: 0.00008 # 8 x 10^-5 (Temporal continuity penalty)
+    lambda_2_sparsity: 0.00008   # 8 x 10^-5 (Anomaly brevity penalty)
+
+dataset:
+  name: "UCF-Crime"
+  total_videos: 1900
+  total_duration_hours: 128
+  num_instances_per_bag: 32
+  categories:
+    - "Abuse"
+    - "Arrest"
+    - "Arson"
+    - "Assault"
+    - "Burglary"
+    - "Explosion"
+    - "Fighting"
+    - "Road Accidents"
+    - "Robbery"
+    - "Shooting"
+    - "Shoplifting"
+    - "Stealing"
+    - "Vandalism"
+    - "Normal"
+
+inference:
+  latency_budget_ms: 5.0
+  anomaly_threshold: 0.50
+  critical_threshold: 0.85
+  temporal_smoothing_window: 5
+  suppression_window_frames: 32
+  target_auc: 0.7541
+  target_far: 0.019 # 1.9% False Alarm Rate
+
+edge:
+  yolo_model: "yolov8n.pt"
+  tracker: "bytetrack"
+  report_llm: "gemini-flash"

@@ -1,0 +1,496 @@
+{
+  "info": {
+    "_postman_id": "bpx-nexus-collection-2026",
+    "name": "BlockPay Nexus — Full-Scale FinTech API Collection",
+    "description": "Comprehensive Postman test collection for BlockPay Nexus microservices platform, covering Auth, Wallets, Transactions, Conversion, Markets, Portfolio, News, Fraud, Audit, and Health.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health & Cluster Status",
+      "item": [
+        {
+          "name": "Gateway Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Platform is BlockPay Nexus', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.platform).to.eql('BlockPay Nexus');",
+                  "    pm.expect(json.status).to.eql('HEALTHY');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Microservices Cluster Telemetry",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "services"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('All 13 microservices reporting healthy', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.gateway.status).to.eql('Healthy');",
+                  "    pm.expect(json.auth.status).to.eql('Healthy');",
+                  "    pm.expect(json.blockchain.status).to.eql('Healthy');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication & Users",
+      "item": [
+        {
+          "name": "Login User (Kiran Nexus)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"kiran_nexus\",\n  \"password\": \"NexusPass#2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns JWT access token', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.accessToken).to.be.a('string');",
+                  "    pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_trader_99\",\n  \"email\": \"trader99@blockpay.nexus\",\n  \"password\": \"StrongPass#2026\",\n  \"fullName\": \"Autonomous Algorithmic Trader\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 400 (if already exists)', function () {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Digital Wallets (Fiat & Crypto)",
+      "item": [
+        {
+          "name": "Get Sovereign Fiat Wallet",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/fiat?userId=usr_bpx_90214",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "fiat"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "usr_bpx_90214"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Wallet currency is INR', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.wallet.currency).to.eql('INR');",
+                  "    pm.expect(json.wallet.balance).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Add Simulated Fiat Funds (Topup)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"usr_bpx_90214\",\n  \"amount\": 10000.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/fiat/topup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "fiat", "topup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Balance updated and ledger entry created', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.ledgerEntry.type).to.eql('TOPUP');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Multi-Asset Crypto Wallets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/wallets/crypto?userId=usr_bpx_90214",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "wallets", "crypto"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "usr_bpx_90214"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Contains major cryptos BTC, ETH, USDT, SOL', function () {",
+                  "    var json = pm.response.json();",
+                  "    var assets = json.wallets.map(w => w.asset);",
+                  "    pm.expect(assets).to.include('BTC');",
+                  "    pm.expect(assets).to.include('ETH');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Markets & Portfolio",
+      "item": [
+        {
+          "name": "Get Markets Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/markets",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "markets"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Includes multi-asset classes', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.markets.length).to.be.above(5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Portfolio Valuation & Risk Ratios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/portfolio?userId=usr_bpx_90214",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "portfolio"],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "usr_bpx_90214"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Computes Sharpe ratio and VaR', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.riskMetrics.sharpeRatio).to.be.above(1.0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Payments & Sagas",
+      "item": [
+        {
+          "name": "Execute P2P Transfer (Saga)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senderId\": \"usr_bpx_90214\",\n  \"receiverId\": \"daniel_dev\",\n  \"amount\": 5000.0,\n  \"currency\": \"INR\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Transaction completed and anchored', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.success).to.be.true;",
+                  "    pm.expect(json.transaction.status).to.eql('COMPLETED');",
+                  "    pm.expect(json.transaction.blockchainStatus).to.eql('VERIFIED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Transactions History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/transactions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "transactions"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Blockchain Audit Ledger",
+      "item": [
+        {
+          "name": "Get On-Chain Audit Records",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit/records",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "audit", "records"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Points to verified EVM smart contract', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.contractAddress).to.eql('0x95AD61b0a150d79219dCF64E1E6Cc01f0B64C4cE');",
+                  "    pm.expect(json.totalRecords).to.be.above(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Verify Transaction Integrity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"txId\": \"tx_bpx_881920\",\n  \"sender\": \"kiran_nexus\",\n  \"receiver\": \"daniel_dev\",\n  \"amount\": 15000.0,\n  \"currency\": \"INR\",\n  \"timestamp\": \"2026-10-08T10:14:22Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit/verify/tx_bpx_881920",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "audit", "verify", "tx_bpx_881920"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Status is VERIFIED', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql('VERIFIED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

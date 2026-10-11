@@ -1,0 +1,70 @@
+flowchart TB
+    %% SentinelAI X Comprehensive System Architecture
+    subgraph SENSORS["SURVEILLANCE INGESTION GRID"]
+        CAM1["CAM_01: 4K North Gate (Ultra-HD)"]
+        CAM2["CAM_02: Sector Perimeter (PTZ Active)"]
+        CAM3["CAM_03: Transit Checkpoint (ANPR Ready)"]
+        CAM4["CAM_04: Concourse East (FOV: 120°)"]
+    end
+
+    subgraph PREPROC["ZONE 1: STREAM PREPROCESSING"]
+        RTSP["RTSP Ingestion Pipeline"]
+        SAMPLER["Contiguous 16-Frame Temporal Chunker"]
+        NORM["Spatiotemporal Normalization (112x112x16, Mean Subtraction)"]
+    end
+
+    subgraph BACKBONE["ZONE 1: PERCEPTION BACKBONE"]
+        C3D_CONV["C3D Convolutional Network (3x3x3 Spatiotemporal Kernels)"]
+        FC6_7["Dense Fully Connected Layers (FC6 & FC7)"]
+        FEAT_4096["4096-Dimensional Feature Vector V_i"]
+    end
+
+    subgraph ENGINE["ZONE 1: DEEP MIL RANKING ENGINE"]
+        MIL_L1["FC Layer 1: 4096 -> 512 Units (ReLU + 60% Dropout)"]
+        MIL_L2["FC Layer 2: 512 -> 32 Units (ReLU)"]
+        MIL_OUT["Output Layer: 32 -> 1 Unit (Sigmoid Activation)"]
+        SCORE["Anomaly Score f(V_i) ∈ [0.0, 1.0]"]
+    end
+
+    subgraph LOSS["PHYSICS OF ANOMALY (OBJECTIVE FUNCTION)"]
+        HINGE["Hinge Ranking Loss: max(0, 1 - max(f_a) + max(f_n))"]
+        SMOOTH["Temporal Smoothness (λ1 = 8×10⁻⁵): Continuity Constraint"]
+        SPARSE["Temporal Sparsity (λ2 = 8×10⁻⁵): Brevity Constraint"]
+    end
+
+    subgraph EDGE_Z2["ZONE 2: PLANNED EDGE ENHANCEMENTS"]
+        YOLO["YOLOv8 Object Perception (Bounding Boxes & IDs)"]
+        BYTE["ByteTrack Multi-Object Association & Velocity"]
+        SEVERITY["Multi-Factor Severity Engine: Score × Velocity × Density"]
+    end
+
+    subgraph OPERATIONS["CENTRAL COMMAND & CO-PILOT"]
+        ALERT_MGR["Alert Manager and Debounce Engine - Sub 5ms Latency"]
+        DASHBOARD["Tactical HUD Operations Dashboard via WebSockets"]
+        OPERATOR["Human Operator - Decision Maker"]
+        LLM_RPT["LLM Automated Incident Intelligence Briefings"]
+    end
+
+    CAM1 --> RTSP
+    CAM2 --> RTSP
+    CAM3 --> RTSP
+    CAM4 --> RTSP
+    RTSP --> SAMPLER
+    SAMPLER --> NORM
+    NORM --> C3D_CONV
+    C3D_CONV --> FC6_7
+    FC6_7 --> FEAT_4096
+    FEAT_4096 --> MIL_L1
+    MIL_L1 --> MIL_L2
+    MIL_L2 --> MIL_OUT
+    MIL_OUT --> SCORE
+    SCORE --> LOSS
+    FEAT_4096 -.-> YOLO
+    YOLO --> BYTE
+    BYTE --> SEVERITY
+    SCORE --> ALERT_MGR
+    SEVERITY -.-> ALERT_MGR
+    ALERT_MGR --> DASHBOARD
+    DASHBOARD <--> OPERATOR
+    ALERT_MGR --> LLM_RPT
+    OPERATOR -.->|Closed Feedback Loop| ENGINE

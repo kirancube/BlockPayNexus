@@ -1,0 +1,50 @@
+{
+  "grid_id": "METRO_SECTOR_07",
+  "total_active_nodes": 4,
+  "cameras": [
+    {
+      "camera_id": "CAM_01",
+      "name": "North Gate Terminal",
+      "resolution": "4K (3840x2160)",
+      "fps": 30,
+      "fov_degrees": 90,
+      "capabilities": ["Ultra-HD Perception", "Static Surveillance", "Perimeter Guard"],
+      "status": "ONLINE",
+      "stream_url": "rtsp://edge.sentinel.internal/cam01/live",
+      "assigned_module": "MODULE_1_YOLO_V8"
+    },
+    {
+      "camera_id": "CAM_02",
+      "name": "Sector Perimeter West",
+      "resolution": "1080p (1920x1080)",
+      "fps": 60,
+      "fov_degrees": 105,
+      "capabilities": ["PTZ_ACTIVE", "Dynamic Tracking", "Optical Zoom 30x"],
+      "status": "ONLINE",
+      "stream_url": "rtsp://edge.sentinel.internal/cam02/live",
+      "assigned_module": "MODULE_2_C3D_SPATIOTEMPORAL"
+    },
+    {
+      "camera_id": "CAM_03",
+      "name": "Transit Checkpoint South",
+      "resolution": "1440p (2560x1440)",
+      "fps": 30,
+      "fov_degrees": 85,
+      "capabilities": ["ANPR_READY", "License Plate Recognition", "Vehicle Velocity Tagging"],
+      "status": "ONLINE",
+      "stream_url": "rtsp://edge.sentinel.internal/cam03/live",
+      "assigned_module": "MODULE_3_MIL_RANKING_ENGINE"
+    },
+    {
+      "camera_id": "CAM_04",
+      "name": "Central Concourse East",
+      "resolution": "1080p (1920x1080)",
+      "fps": 30,
+      "fov_degrees": 120,
+      "capabilities": ["FOV_120_WIDE", "High-Density Crowd Monitoring", "Spatiotemporal Flow"],
+      "status": "ONLINE",
+      "stream_url": "rtsp://edge.sentinel.internal/cam04/live",
+      "assigned_module": "MODULE_2_C3D_SPATIOTEMPORAL"
+    }
+  ]
+}
